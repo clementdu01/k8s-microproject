@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: k8s-microproject-ingress
+  annotations:
+    kubernetes.io/ingress.class: "caddy"
+spec:
+  tls:
+    - hosts:
+        - api.com
+      secretName: api-com-tls
+  rules:
+    - host: api.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: k8s-microproject-deployment
+                port:
+                  number: 3000
