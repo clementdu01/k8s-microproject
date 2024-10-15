@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-microproject-deployment
+  labels:
+    app: k8s-microproject
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: k8s-microproject
+  template:
+    metadata:
+      labels:
+        app: k8s-microproject
+    spec:
+      containers:
+
+name: microproject
+        image: clementdu01/k8s-microproject
+        ports:
+containerPort: 3000
