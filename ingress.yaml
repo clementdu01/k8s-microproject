@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: k8s-microproject-ingress
   annotations:
-    kubernetes.io/ingress.class: "caddy"
+    spec.ingressClassName: caddy
 spec:
   tls:
     - hosts:
@@ -14,7 +14,7 @@ spec:
       http:
         paths:
           - pathType: Prefix
-            path: /
+            path: "/"
             backend:
               service:
                 name: k8s-microproject-deployment

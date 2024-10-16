@@ -15,8 +15,8 @@ spec:
         app: k8s-microproject
     spec:
       containers:
-      - name: microproject
-        image: clementdu01/k8s-microproject
-        ports:
-        - containerPort: 3000
+        - name: microproject
+          image: clementdu01/k8s-microproject
+          ports:
+          - containerPort: 3000
 
