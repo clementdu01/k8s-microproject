@@ -143,3 +143,56 @@ kubectl get ingress
 ```bash
 curl --resolve "<ingress-host>:80:<ingress-address>" -i http://<ingress-host>/
 ```
+
+### Step 6 - HTTPS
+
+Create namespace
+```bash
+kubectl create namespace caddy-system
+```
+
+Create certificat
+```bash
+  helm install --namespace=caddy-system --repo h
+  ttps://caddyserver.github.io/ingress/ --atomic mycaddy caddy-ingress-controller --set ingressControl
+  ler.config.email="<EMAIL>" --set loadBalancer.annotations."service\.beta\.kubernet
+  es\.io/azure-dns-label-name"="<DNS_PREFIX>"
+```
+
+### Create certificat
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout tls.key -out tls.crt -subj "/CN=api.com/O=api.com"
+
+kubectl create secret tls api-com-tls --cert=tls.crt --key=tls.key
+```
+
+Use -k to bypass tls verification
+```bash
+curl --resolve "api.com:443:192.168.49.2" -ik https://api.com/
+```
+
+
+## If you need to delete
+```bash
+kubectl delete deployment k8s-microproject-deployment
+```
+
+```bash
+kubectl delete ingress k8s-microproject-ingress
+```
+
+nginx admission config
+```bash
+kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+```
+
+## Run tunnel
+```bash
+minikube tunnel
+```
+
+## Minikube addon
+```bash
+minikube addons enable ingress
+```
