@@ -1,22 +1,23 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: k8s-microproject-ingress
+  name: myapp-ingress
+  namespace: caddy-system
   annotations:
-    spec.ingressClassName: caddy
+    kubernetes.io/ingress.class: "caddy"
 spec:
   tls:
-    - hosts:
-        - api.com
-      secretName: api-com-tls
+  - hosts:
+    - myapp.local
+    secretName: myapp-tls
   rules:
-    - host: api.com
-      http:
-        paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: k8s-microproject-deployment
-                port:
-                  number: 3000
+  - host: myapp.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp-service
+            port:
+              number: 80

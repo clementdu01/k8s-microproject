@@ -151,27 +151,38 @@ Create namespace
 kubectl create namespace caddy-system
 ```
 
-Create certificat
+Installer Caddy Ingress Controller
 ```bash
-  helm install --namespace=caddy-system --repo h
-  ttps://caddyserver.github.io/ingress/ --atomic mycaddy caddy-ingress-controller --set ingressControl
-  ler.config.email="<EMAIL>" --set loadBalancer.annotations."service\.beta\.kubernet
-  es\.io/azure-dns-label-name"="<DNS_PREFIX>"
+helm repo add caddy-ingress https://caddyserver.github.io/ingress/
+helm repo update
+helm install mycaddy caddy-ingress/caddy-ingress-controller --namespace caddy-system --set ingressController.enabled=true
+```
+
+Créer un certificat TLS auto-signé avec PowerShell
+```bash
+  New-SelfSignedCertificate -DnsName "myapp.local" -CertStoreLocation "Cert:\LocalMachine\My" -KeyExportPolicy Exportable -NotAfter (Get-Date).AddYears(1)
 ```
 
 ### Create certificat
+Exporter le certificat et la clé privée
 ```bash
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout tls.key -out tls.crt -subj "/CN=api.com/O=api.com"
+$cert = Get-ChildItem -Path "Cert:\LocalMachine\My" | Where-Object { $_.DnsNameList -contains "myapp.local" }
+$pwd = ConvertTo-SecureString -String "MySecurePassword" -Force -AsPlainText
+Export-PfxCertificate -Cert $cert -FilePath "$env:TEMP\myapp.pfx" -Password $pwd
+certutil -exportPFX -p "MySecurePassword" -user myapp.local "$env:TEMP\myapp.pfx" NoChain
+certutil -decode "$env:TEMP\myapp.pfx" "$env:TEMP\tls.key"
 
-kubectl create secret tls api-com-tls --cert=tls.crt --key=tls.key
 ```
 
-Use -k to bypass tls verification
+Créer un secret Kubernetes pour le certificat TLS
 ```bash
-curl --resolve "api.com:443:192.168.49.2" -ik https://api.com/
+kubectl create secret tls myapp-tls --cert="$env:TEMP\tls.crt" --key="$env:TEMP\tls.key" --namespace caddy-system
 ```
 
+Appliquer la configuration de l'Ingress
+```bash
+kubectl apply -f ingress.yaml
+```
 
 ## If you need to delete
 ```bash
